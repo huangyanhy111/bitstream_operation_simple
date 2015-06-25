@@ -153,4 +153,51 @@ void convertPlayloadToRBSP(vector<uint8_t> &nalUnitBuf, bool isVclNalUnit)
 
 	nalUnitBuf.resize(it_write - nalUnitBuf.begin());
 }
+
+void AddEmulationPrevention(vector<uint8_t> &nalUnitBuf)
+{
+	UInt zeroCount = 0;
+	vector<uint8_t>::iterator it_read;
+
+	UInt count0x03 = 0;
+	it_read = nalUnitBuf.begin();
+	uint32_t OriginNalSize = nalUnitBuf.size();
+	for (uint32_t pos = 0; pos < OriginNalSize + count0x03; pos++, it_read++)
+	{
+		if (zeroCount == 2 && *(it_read) <= 0x03)
+		{
+			//bitstream->pushEmulationPreventionByteLocation(pos);
+			//it_read++;
+			pos++;
+			nalUnitBuf.insert(it_read, 0x03);
+			++count0x03;
+			zeroCount = 0;
+
+			if (pos == OriginNalSize + count0x03)
+			{
+				break;
+			}
+			assert(*it_read <= 0x03);
+		}
+		zeroCount = (*it_read == 0x00) ? zeroCount + 1 : 0;
+	}
+	
+	//assert(zeroCount == 0);
+	nalUnitBuf.resize(OriginNalSize + count0x03);
+}
+
+void AddStartCodePrefix(vector<uint8_t> &nalUnitBuf)
+{
+	vector<uint8_t>::iterator it_read;
+	it_read = nalUnitBuf.begin();
+	uint32_t OriginNalSize = nalUnitBuf.size();
+	nalUnitBuf.insert(it_read, 0x01);
+	it_read = nalUnitBuf.begin();
+	nalUnitBuf.insert(it_read, 0x00);
+	it_read = nalUnitBuf.begin();
+	nalUnitBuf.insert(it_read, 0x00);
+	it_read = nalUnitBuf.begin();
+	nalUnitBuf.insert(it_read, 0x00);
+	nalUnitBuf.resize(OriginNalSize + 4);
+}
 #endif

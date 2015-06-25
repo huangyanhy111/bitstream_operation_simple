@@ -71,9 +71,15 @@ void main()
 		}
 #endif
 		vector<uint8_t> nalUnit;
-		GetNalUnit(bitstream, nalUnit);
-		convertPlayloadToRBSP(nalUnit, (nalUnit[0] & 64 == 0));
+		GetNalUnit(bitstream, nalUnit);//ȥ00000001 prefix
+		convertPlayloadToRBSP(nalUnit, (nalUnit[0] & 64) == 0);//ȥ0x03
 		myNAL_rw nalUnit_rw(nalUnit);
+		/*
+		do some changes
+		*/
+
+		AddEmulationPrevention(nalUnit);
+		AddStartCodePrefix(nalUnit);
 		while (1)
 		{
 			uint32_t a = nalUnit_rw.read_bits(8);
