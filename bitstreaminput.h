@@ -1,3 +1,6 @@
+#ifndef __bitstreaminput__h__
+#define __bitstreaminput__h__
+
 #include <iostream>
 using namespace std;
 #include <assert.h>
@@ -167,3 +170,5 @@ public:
 	uint8_t *outputbuf; //外部传进来的最终码流存储器
 	uint32_t *OUT_bufsize_IN_BYTES;//记录BYTE数量
 };
+
+#endif
